@@ -1,0 +1,466 @@
+/*Постоянные значения*/
+
+SET 
+@ENTRY := 400400,
+@GOSSIP := 55055,
+@TEXT := 8000,
+@MODEL := 27105;
+
+/*Удаление во избежание ошибок */
+
+DELETE FROM smart_scripts WHERE entryorguid = @ENTRY;
+DELETE FROM creature_template WHERE entry = @ENTRY;
+DELETE FROM creature_template_addon WHERE entry = @ENTRY;
+DELETE FROM gossip_menu WHERE entry>@GOSSIP-10 AND entry<@GOSSIP+20;
+DELETE FROM npc_text WHERE ID>@TEXT-10 AND ID<@TEXT+20;
+DELETE FROM gossip_menu_option WHERE menu_id>@GOSSIP-10 AND menu_id<@GOSSIP+20;
+DELETE FROM conditions WHERE SourceTypeOrReferenceId=15 AND (SourceGroup>@GOSSIP-10 AND SourceGroup<@GOSSIP+20);
+DELETE FROM creature_equip_template WHERE entry = @EQUIP_ENTRY;
+
+/*Создание NPC*/
+
+INSERT INTO `creature_template` (`entry`, `modelid1`, `name`, `gossip_menu_id`, `minlevel`, `maxlevel`, `faction_A`, `faction_H`, `npcflag`, `scale`, `rank`, `Health_mod`, `Mana_mod`, `AIName`, `type_flags`)
+VALUE 
+(@ENTRY, @MODEL, 'Внутриигровой помощник', @GOSSIP, 200, 200, 35, 35, 3, 1.5, 3, 777000000, 777000000, 'SmartAI', 4);
+
+/*Создание GOSSIP меню*/
+
+INSERT INTO `gossip_menu` 
+VALUES
+(@GOSSIP, @TEXT), 
+(@GOSSIP+1, @TEXT+1),
+(@GOSSIP+2, @TEXT+2),	
+(@GOSSIP+3, @TEXT+3),	
+(@GOSSIP+4, @TEXT+3),
+(@GOSSIP+5, @TEXT+3),	
+(@GOSSIP+6, @TEXT+3),
+(@GOSSIP+7, @TEXT+3),	
+(@GOSSIP+8, @TEXT+3),
+(@GOSSIP+9, @TEXT+3),	
+(@GOSSIP+10, @TEXT+3),	
+(@GOSSIP+11, @TEXT+3),	
+(@GOSSIP+12, @TEXT+3),	
+(@GOSSIP+13, @TEXT+3),	
+(@GOSSIP+14, @TEXT+1),	
+(@GOSSIP+15, @TEXT+1),
+(@GOSSIP+16, @TEXT+4);
+
+/*Создание текстов для меню*/
+
+INSERT INTO `npc_text` (`ID`, `text0_0`, `em0_0`)
+VALUES
+(@TEXT, '|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:15:25|t Выберите нужную Вам категорию:', 1),
+(@TEXT+1, '|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:15:25|t Выберите нужную Вам подкатегорию:', 1), 
+(@TEXT+2, '|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:15:25|t Выберите нужный Вам раздел телепортации:', 1),
+(@TEXT+3, '|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:15:25|t Выберите нужную Вам локацию для телепортации:', 1),
+(@TEXT+4, '|TInterface\\ChatFrame\\UI-ChatIcon-Blizz.blp:15:25|t Выберите вопрос, на который вам нужен ответ:', 53);
+
+/*	МЕНЮ ТЕЛЕПОРТАЦИИ */	
+
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `box_text`)
+VALUES
+(@GOSSIP, 1, 9, 'Помощь персонажу', 1, 1, @GOSSIP+1, NULL), 
+(@GOSSIP, 2, 7, 'Ответы на часто задаваемые вопросы ', 1, 1, @GOSSIP+16, NULL),
+
+
+/*Главное меню телепортации*/
+
+(@GOSSIP+1, 1, 2, '|TInterface/ICONS/ability_mage_invisibility:15|t Телепортация', 1, 1, @GOSSIP+2, NULL), 
+(@GOSSIP+2, 1, 1, '|TInterface/ICONS/inv_misc_map02:15|t Города', 1, 1, @GOSSIP+3, NULL),
+(@GOSSIP+2, 2, 2, '|TInterface/ICONS/achievement_zone_easternkingdoms_01:15|t Восточные Королевства', 1, 1, @GOSSIP+4, NULL),
+(@GOSSIP+2, 3, 2, '|TInterface/ICONS/achievement_zone_kalimdor_01:15|t Калимдор', 1, 1, @GOSSIP+5, NULL),
+(@GOSSIP+2, 4, 2, '|TInterface/ICONS/achievement_zone_outland_01:15|t Запределье', 1, 1, @GOSSIP+6, NULL),
+(@GOSSIP+2, 5, 2, '|TInterface/ICONS/achievement_zone_northrend_01:15|t Нордскол', 1, 1, @GOSSIP+7, NULL),
+(@GOSSIP+2, 6, 9, '|TInterface/ICONS/spell_holy_revivechampion:15|t Подземелья Азерота', 1, 1, @GOSSIP+8, NULL),
+(@GOSSIP+2, 7, 9, '|TInterface/ICONS/inv_helmet_74:15|t Рейды Азерота', 1, 1, @GOSSIP+9, NULL),
+(@GOSSIP+2, 8, 9, '|TInterface/ICONS/ability_creature_cursed_02:15|t Подзеsмелья Запределья', 1, 1, @GOSSIP+10, NULL),
+(@GOSSIP+2, 9, 9, '|TInterface/ICONS/inv_helmet_90:15|t Рейды Запределья', 1, 1, @GOSSIP+11, NULL),
+(@GOSSIP+2, 10, 9, '|TInterface/ICONS/ability_rogue_feigndeath:15|t Подземелья Нордскола', 1, 1, @GOSSIP+12, NULL),
+(@GOSSIP+2, 11, 9, '|TInterface/ICONS/inv_helmet_151:15|t Рейды Нордскола', 1, 1, @GOSSIP+13, NULL),
+(@GOSSIP+2, 12, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+1, NULL),
+
+/*Меню телепортации в ГОРОДА*/
+
+(@GOSSIP+3, 1, 8, '|TInterface/ICONS/Spell_arcane_portalorgrimmar:15|t Оргриммар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 2, 8, '|TInterface/ICONS/Spell_arcane_portalundercity:15|t Подгород', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 3, 8, '|TInterface/ICONS/Spell_arcane_portalthunderbluff:15|t Громовой Утёс', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 4, 8, '|TInterface/ICONS/Spell_arcane_portalsilvermoon:15|t Луносвет', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 5, 8, '|TInterface/ICONS/Spell_arcane_portalstormwind:15|t Штормград', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 6, 8, '|TInterface/ICONS/Spell_arcane_portalironforge:15|t Стальгорн', 1, 1, 0, 'Для подтверждения нажмите "Принять"'), 
+(@GOSSIP+3, 7, 8, '|TInterface/ICONS/Spell_arcane_portaldarnassus:15|t Дарнас', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 8, 8, '|TInterface/ICONS/Spell_arcane_portalexodar:15|t Экзодар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 9, 8, '|TInterface/ICONS/Spell_arcane_portalshattrath:15|t Шаттрат', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 10, 8, '|TInterface/ICONS/spell_arcane_portaldalaran:15|t Даларан', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+3, 11, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL), 
+
+/*Меню телепортации в ВОСТОЧНЫЕ КОРОЛЕВСТВА*/
+
+(@GOSSIP+4, 1, 3, '|TInterface/ICONS/achievement_zone_isleofqueldanas:15|t Остров Кель`Данас', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 2, 3, '|TInterface/ICONS/achievement_zone_eversongwoods:15|t Леса Вечной Песни', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 3, 3, '|TInterface/ICONS/achievement_zone_ghostlands:15|t Призрачные земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 4, 3, '|TInterface/ICONS/achievement_zone_easternplaguelands:15|t Восточные Чумные земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 5, 3, '|TInterface/ICONS/achievement_zone_westernplaguelands_01:15|t Западные Чумные земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 6, 3, '|TInterface/ICONS/achievement_zone_tirisfalglades_01:15|t Тирисфальские леса', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 7, 3, '|TInterface/ICONS/achievement_zone_silverpine_01:15|t Серебрянный бор', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 8, 3, '|TInterface/ICONS/Achievement_zone_alteracmountains_01:15|t Альтеракские горы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 9, 3, '|TInterface/ICONS/achievement_zone_hillsbradfoothills:15|t Предгорья Хилсбрада', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 10, 3, '|TInterface/ICONS/achievement_zone_hinterlands_01:15|t Внутренние земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 11, 3, '|TInterface/ICONS/achievement_zone_arathihighlands_01:15|t Нагорье Арати', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 12, 3, '|TInterface/ICONS/achievement_zone_wetlands_01:15|t Болотина', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 13, 3, '|TInterface/ICONS/achievement_zone_lochmodan:15|t Лок Модан', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 14, 3, '|TInterface/ICONS/achievement_zone_dunmorogh:15|t Дун Морог', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 15, 3, '|TInterface/ICONS/achievement_zone_searinggorge_01:15|t Тлеющее ущелье', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 16, 3, '|TInterface/ICONS/achievement_zone_badlands_01:15|t Бесплодные земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 17, 3, '|TInterface/ICONS/achievement_zone_burningsteppes_01:15|t Пылающие степи', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 18, 3, '|TInterface/ICONS/achievement_zone_redridgemountains:15|t Красногорье', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 19, 3, '|TInterface/ICONS/achievement_zone_elwynnforest:15|t Элвиннский лес', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 20, 3, '|TInterface/ICONS/achievement_zone_westfall_01:15|t Западные Край', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 21, 3, '|TInterface/ICONS/achievement_zone_duskwood:15|t Сумеречный лес', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 22, 3, '|TInterface/ICONS/achievement_zone_deadwindpass:15|t Перевал Мертвого Ветра', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 23, 3, '|TInterface/ICONS/achievement_zone_swampsorrows_01:15|t Болото Печали', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 24, 3, '|TInterface/ICONS/achievement_zone_blastedlands_01:15|t Выжженные земли', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 25, 3, '|TInterface/ICONS/achievement_zone_stranglethorn_01:15|t Тернистая долина', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 26, 9, '|TInterface/ICONS/achievement_featsofstrength_gladiator_05:15|t Арена Гурубаши', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+4, 27, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в КАЛИМДОР*/
+
+(@GOSSIP+5, 1, 3, '|TInterface/ICONS/achievement_zone_darnassus:15|t Тельдрассил', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 2, 3, '|TInterface/ICONS/achievement_zone_bloodmystisle_01:15|t Остров Кровавой Дымки', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),	
+(@GOSSIP+5, 3, 3, '|TInterface/ICONS/achievement_zone_azuremystisle_01:15|t Остров Лазурной Дымки', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 4, 3, '|TInterface/ICONS/spell_arcane_teleportmoonglade:15|t Лунная поляна', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 5, 3, '|TInterface/ICONS/achievement_zone_winterspring:15|t Зимние Ключи', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 6, 3, '|TInterface/ICONS/achievement_zone_darkshore_01:15|t Темные берега',1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 7, 3, '|TInterface/ICONS/achievement_zone_felwood:15|t Оскверненный лес', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 8, 3, '|TInterface/ICONS/achievement_zone_azshara_01:15|t Азшара', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 9, 3, '|TInterface/ICONS/achievement_zone_ashenvale_01:15|t Ясеневый лес', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 10, 3, '|TInterface/ICONS/achievement_zone_durotar:15|t Дуротар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 11, 3, '|TInterface/ICONS/achievement_zone_barrens_01:15|t Степи', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 12, 3, '|TInterface/ICONS/achievement_zone_stonetalon_01:15|t Когтистые горы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 13, 3, '|TInterface/ICONS/achievement_zone_mulgore_01:15|t Мулгор', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 14, 3, '|TInterface/ICONS/achievement_zone_desolace:15|t Пустоши', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 15, 3, '|TInterface/ICONS/achievement_zone_dustwallowmarsh:15|t Пылевые топи', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 16, 3, '|TInterface/ICONS/achievement_zone_feralas:15|t Фералас', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5 ,17 ,3, '|TInterface/ICONS/achievement_zone_thousandneedles_01:15|t Тысяча Игл', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 18, 3, '|TInterface/ICONS/achievement_zone_silithus_01:15|t Силитус', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5 ,19, 3, '|TInterface/ICONS/achievement_zone_ungorocrater_01:15|t Кратер Ун`Горо', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 20, 3, '|TInterface/ICONS/achievement_zone_tanaris_01:15|t Танарис', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+5, 21, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в ЗАПРЕДЕЛЬЕ*/
+
+(@GOSSIP+6, 1, 3, '|TInterface/ICONS/achievement_zone_netherstorm_01:15|t Пустоверть', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 2, 3, '|TInterface/ICONS/achievement_zone_bladesedgemtns_01:15|t Острогорье', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 3, 3, '|TInterface/ICONS/achievement_zone_zangarmarsh:15|t Зангартопь', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 4, 3, '|TInterface/ICONS/achievement_zone_nagrand_01:15|t Награнд', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 5, 3, '|TInterface/ICONS/achievement_zone_terrokar:15|t Лес Тероккар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 6, 3, '|TInterface/ICONS/achievement_zone_shadowmoon:15|t Долина Призрачной Луны', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 7, 3, '|TInterface/ICONS/achievement_zone_hellfirepeninsula_01:15|t Полуостров Адского Пламени', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 8, 9, '|TInterface/ICONS/achievement_featsofstrength_gladiator_05:15|t Арена Награнда', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+6, 9, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в НОРДСКОЛ*/
+
+(@GOSSIP+7, 1, 3, '|TInterface/ICONS/achievement_zone_boreantundra_01:15|t Борейская тундра', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 2, 3, '|TInterface/ICONS/achievement_zone_howlingfjord_01:15|t Ревущий фьорд', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 3, 3, '|TInterface/ICONS/achievement_zone_sholazar_01:15|t Низина Шолазар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 4, 3, '|TInterface/ICONS/achievement_zone_grizzlyhills_01:15|t Седые холмы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 5, 3, '|TInterface/ICONS/achievement_zone_zuldrak_03:15|t Зул`Драк', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 6, 3, '|TInterface/ICONS/achievement_zone_dragonblight_01:15|t Драконий Погост', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 7, 3, '|TInterface/ICONS/achievement_zone_crystalsong_01:15|t Хрустальная Песня', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 8, 3, '|TInterface/ICONS/achievement_zone_stormpeaks_01:15|t Грозовая Гряда', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 9, 3, '|TInterface/ICONS/achievement_zone_icecrown_01:15|t Ледяная Корона', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 10, 3, '|TInterface/ICONS/achievement_zone_stormpeaks_03:15|t Озеро Ледяных Оков', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+7, 11, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в КЛАССИЧЕСКИЕ ПОДЗЕМЕЛЬЯ*/
+
+(@GOSSIP+8, 1, 6, '|TInterface/ICONS/racial_orc_berserkerstrength:15|t Огненная пропасть', 1, 1, 0, 'Для подтверждения нажмите "Принять"'), 
+(@GOSSIP+8, 2, 6, '|TInterface/ICONS/inv_misc_head_murloc_01:15|t Мертвые копи', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 3, 6, '|TInterface/ICONS/achievement_boss_mutanus_the_devourer:15|t Пещеры Стенаний', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 4, 6, '|TInterface/ICONS/achievement_boss_arugal:15|t Крепость Темного Клыка', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 5, 6, '|TInterface/ICONS/achievement_boss_bazil_akumai:15|t Непроглядная Пучина', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 6, 6, '|TInterface/ICONS/inv_misc_head_gnoll_01:15|t Тюрьма Штормграда', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 7, 6, '|TInterface/ICONS/achievement_boss_charlgarazorflank:15|t Лабиринты Иглошкурых', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 8, 6, '|TInterface/ICONS/achievement_boss_mekgineer_thermaplugg-:15|t Гномреган', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 9, 6, '|TInterface/ICONS/achievement_boss_amnennar_the_coldbringer:15|t Курганы Иглошкурых', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 10, 6, '|TInterface/ICONS/spell_holy_resurrection:15|t Монастырь Алого ордена', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 11, 6, '|TInterface/ICONS/achievement_boss_archaedas:15|t Ульдаман', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 12, 6, '|TInterface/ICONS/achievement_boss_chiefukorzsandscalp:15|t Зул`Фаррак', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 13, 6, '|TInterface/ICONS/achievement_boss_princesstheradras:15|t Мародон', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 14, 6, '|TInterface/ICONS/achievement_boss_shadeoferanikus:15|t Затонувший храм', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 15, 6, '|TInterface/ICONS/achievement_boss_emperordagranthaurissan:15|t Глубины Черной горы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 16, 6, '|TInterface/ICONS/achievement_boss_overlord_wyrmthalak:15|t Нижняя часть Черный горы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 17, 6, '|TInterface/ICONS/achievement_boss_overlord_wyrmthalak:15|t Верхняя часть Черный горы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 18, 6, '|TInterface/ICONS/ability_warrior_decisivestrike:15|t Забытый город', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 19, 6, '|TInterface/ICONS/spell_holy_senseundead:15|t Некроситет', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 20, 6, '|TInterface/ICONS/spell_deathknight_armyofthedead:15|t Стратхольм', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 21, 6, '|TInterface/ICONS/achievement_boss_hakkar:15|t Зул`Гуруб', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+8, 22, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в КЛАССИЧЕСКИЕ РЕЙДЫ*/
+
+(@GOSSIP+9, 1, 6, '|TInterface/ICONS/achievement_boss_ossiriantheunscarred:15|t Руины Ан`Киража', 1, 1, @GOSSIP+9, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+9, 2, 6, '|TInterface/ICONS/achievement_boss_cthun:15|t Храм Ан`Киража', 1, 1, @GOSSIP+9, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+9, 3, 6, '|TInterface/ICONS/achievement_boss_ragnaros:15|t Огненные Недра', 1, 1, @GOSSIP+9, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+9, 4, 6, '|TInterface/ICONS/achievement_boss_nefarion:15|t Логово Крыла Тьмы', 1, 1, @GOSSIP+9, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+9, 5, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в ПОДЗЕМЕЛЬЯ ЗАПРЕДЕЛЬЯ*/
+
+(@GOSSIP+10, 1, 6, '|TInterface/ICONS/achievement_boss_omartheunscarred_01:15|t Бастионы Адского Пламени', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 3, 6, '|TInterface/ICONS/achievement_boss_kelidanthebreaker:15|t Кузня Крови', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 4, 6, '|TInterface/ICONS/achievement_boss_quagmirran:15|t Узилище', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 5, 6, '|TInterface/ICONS/achievement_boss_theblackstalker:15|t Нижетопь', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 6, 6, '|TInterface/ICONS/achievement_boss_nexus_prince_shaffar:15|t Гробницы Маны', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 7, 6, '|TInterface/ICONS/achievement_boss_exarch_maladaar:15|t Аукенайские гробницы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 8, 6, '|TInterface/ICONS/achievement_boss_epochhunter:15|t Побег из Дарнхольда', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 9, 6, '|TInterface/ICONS/achievement_boss_talonkingikiss:15|t Сетеккские залы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 10, 6, '|TInterface/ICONS/achievement_boss_murmur:15|t Темный лабиринт', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 11, 6, '|TInterface/ICONS/achievement_boss_aeonus_01:15|t Открытие Темного портала', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 12, 6, '|TInterface/ICONS/achievement_boss_warlord_kalithresh:15|t Паровое подземелье', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 13, 6, '|TInterface/ICONS/achievement_boss_kargathbladefist_01:15|t Разрушенные залы', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 14, 6, '|TInterface/ICONS/achievement_boss_pathaleonthecalculator:15|t Механар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 15, 6, '|TInterface/ICONS/achievement_boss_warpsplinter:15|t Ботаника', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 16, 6, '|TInterface/ICONS/achievement_boss_harbinger_skyriss:15|t Аркатрац', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 17, 6, "|TInterface/ICONS/Achievement_Boss_Kael\'thasSunstrider_01:15|t Терраса Магистров", 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+10, 18, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в РЕЙДЫ ЗАПРЕДЕЛЬЯ*/
+
+(@GOSSIP+11, 1, 6, '|TInterface/ICONS/achievement_boss_princemalchezaar_02:15|t Каражан', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 2, 6, '|TInterface/ICONS/achievement_boss_zuljin:15|t Зул`Аман', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 3, 6, '|TInterface/ICONS/achievement_boss_gruulthedragonkiller:15|t Логово Груула', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 4, 6, '|TInterface/ICONS/achievement_boss_magtheridon:15|t Логово Магтеридона', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 5, 6, '|TInterface/ICONS/achievement_boss_ladyvashj:15|t Змеиное святилище', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 6, 6, '|TInterface/ICONS/achievement_character_bloodelf_male:15|t Крепость Бурь', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 7, 6, '|TInterface/ICONS/achievement_boss_archimonde :15|t Битва за гору Хиджал', 1, 1, 0, 'Для подтверждения нажмите "Принять"'), 
+(@GOSSIP+11, 8, 6, '|TInterface/ICONS/achievement_boss_illidan:15|t Черный храм', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 9, 6, '|TInterface/ICONS/achievement_boss_kiljaedan:15|t Плато Солнечного Колодца', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+11, 10, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в ПОДЗЕМЕЛЬЯ НОРДСКОЛА*/
+
+(@GOSSIP+12, 1, 6, 'Крепость Утгард', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 2, 6, 'Нексус', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 3, 6, 'Азжол - Неруб', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 4, 6, 'Ан`Кахет: Старое Королевство', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 5, 6, 'Крепость Драк`Тарон', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 6, 6, 'Аметистовая крепость', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 7, 6, 'Гундрак', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 8, 6, 'Чертоги Камня', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 9, 6, 'Чертоги Молний', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 10, 6, 'Окулус', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 11, 6, 'Вершина Утгард', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 12, 6, 'Очищение Стратхольма', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 13, 6, 'Испытание чемпиона', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 14, 6, 'Кузня Душ', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 15, 6, 'Яма Сарона', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 16, 6, 'Залы Отражений', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+12, 17, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню телепортации в РЕЙДЫ НОРДСКОЛА*/
+
+(@GOSSIP+13, 1, 6, '|TInterface/ICONS/spell_nature_elementalprecision_2:15|t Склеп Аркавона', 1, 1, 0, 'Для подтверждения нажмите "Принять"'), 
+(@GOSSIP+13, 2, 6, '|TInterface/ICONS/achievement_dungeon_naxxramas_10man:15|t Наксрамас', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 3, 6, '|TInterface/ICONS/achievement_dungeon_coablackdragonflight_10man:15|t Обсидиановое святилище', 1, 1, 0,'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 4, 6, '|TInterface/ICONS/achievement_dungeon_nexusraid_10man:15|t Око Вечности', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 5, 6, '|TInterface/ICONS/achievement_boss_yoggsaron_01:15|t Ульдуар', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 6, 6, '|TInterface/ICONS/achievement_boss_generaldrakkisath:15|t Логово Ониксии', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 7, 6, '|TInterface/ICONS/achievement_reputation_argentchampion:15|t Испытание крестоносца', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 8, 6, '|TInterface/ICONS/achievement_boss_lichking:15|t Цитадель Ледяной Короны', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 9, 6, '|TInterface/ICONS/spell_shadow_twilight:15|t Рубиновое святилище', 1, 1, 0, 'Для подтверждения нажмите "Принять"'),
+(@GOSSIP+13, 10, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+2, NULL),
+
+/*Меню Помощи Персонажу*/
+
+(@GOSSIP+1, 2, 6, '|TInterface/ICONS/spell_shadow_brainwash:15|t Помощь персонажу', 1, 1, @GOSSIP+14, NULL), 
+
+(@GOSSIP+14, 1, 6, '|TInterface/ICONS/spell_holy_divineillumination:15|t Исцели меня', 1, 1, @GOSSIP+14, NULL), 
+(@GOSSIP+14, 2, 6, '|TInterface/ICONS/ability_druid_cower:15|t Оправдай мое дезертирство (БГ)', 1, 1, @GOSSIP+14, NULL), 
+(@GOSSIP+14, 3, 6, '|TInterface/ICONS/achievement_bg_ab_kill_in_mine:15|t Оправдай мое дезертирство (ИНСТ)', 1, 1, @GOSSIP+14, NULL), 
+(@GOSSIP+14, 4, 6, '|TInterface/ICONS/spell_shadow_deathscream:15|t Сними мою слабость', 1, 1, @GOSSIP+14, NULL), 
+(@GOSSIP+14, 5, 4, '|TInterface/ICONS/Inv_misc_gear_05:15|t Назад..', 1, 1, @GOSSIP+1, NULL),
+
+/*Меню Баффов*/
+(@GOSSIP+1, 3, 6, '|TInterface/ICONS/spell_holy_powerinfusion:15|t Наложение заклинаний', 1, 1, @GOSSIP+15, NULL),
+
+(@GOSSIP+15, 1, 6, '|TInterface/ICONS/spell_magic_greaterblessingofkings:15|t Великое благословение королей', 1, 1, @GOSSIP+15, NULL), 
+(@GOSSIP+15, 2, 6, '|TInterface/ICONS/spell_holy_greaterblessingofkings:15|t Великое благословение могущества', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 3, 6, '|TInterface/ICONS/spell_holy_greaterblessingofwisdom:15|t Великое благословение мудрости', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 4, 6, '|TInterface/ICONS/spell_holy_wordfortitude:15|t Слово cилы: Стойкость', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 5, 6, '|TInterface/ICONS/Spell_Holy_DivineSpirit:15|t Божественный дух', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 6, 6, '|TInterface/ICONS/Spell_Holy_PrayerofShadowProtection:15|t Защита от темный магии', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 7, 6, '|TInterface/ICONS/achievement_dungeon_theviolethold_heroic:15|t Даларанский интеллект', 1, 1, @GOSSIP+15, NULL), 
+(@GOSSIP+15, 8, 6, '|TInterface/ICONS/spell_nature_thorns:15|t Шипы ', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 9, 6, '|TInterface/ICONS/spell_nature_regeneration:15|t Знак дикой природы ', 1, 1, @GOSSIP+15, NULL),
+(@GOSSIP+15, 10, 6, 'Test ', 1, 1, @GOSSIP+15, NULL),
+
+/*Вопросы*/
+
+(@GOSSIP+16, 1, 6, 'Какие рейты на этом сервере?', 1, 1, @GOSSIP+16, 'Рейт XP - x100\n Рейт HP - x25\n Рейт профессии - х100\n Занижение XP босса - 95%\n Занижение DMG - 99%'),
+(@GOSSIP+16, 2, 6, 'Как сбросить КД с рейда?', 1, 1, 0, 'Введите команду .in un all в игрвом чате'),
+(@GOSSIP+16, 3, 6, 'Как прокачать профессию?', 1, 1, 0, '1]Изучить нужную Вам профессию\n 2]Приобретите реагенты\n 3]Создавайте простейшие вещи\n [Профессия качается даже на "сером"]'),
+(@GOSSIP+16, 4, 6, 'Как отправить сообщение администратору?', 1, 1, 0, '1] Выберете меню "Помощь" на панеле персонажа\n 2] Нажмите кнопку "Связатьсяс ГМ"\n 3] Нажмите кнопку "Отправить запрос"\n 4]Опишите Вашу проблему и нажмите кнопку "Отправить"\n 5]Ожидайте ответа по почте или в игровом чате');
+
+
+/*Создание скриптов для телепортации*/
+
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_param1`, `event_param2`, `action_type`, `action_param1`, `target_type`, `target_x`, `target_y`, `target_z`, `target_o`, `COMMENT`) 
+VALUES 
+
+/*Скрипт для ГОРОДОВ*/
+
+(@ENTRY, 1, 62, @GOSSIP+3, 1, 62, 1, 7, 1481.547974, -4415.611816, 25.462578, 0.103826, 'Оргриммар'),
+(@ENTRY, 2, 62, @GOSSIP+3, 2, 62, 0, 7, 1642.317993, 239.842987, 62.592041, 3.139983, 'Подгород'),
+(@ENTRY, 3, 62, @GOSSIP+3, 3, 62, 1, 7, -1276.740356, 118.831680, 131.153168, 5.390813, 'Громовой Утёс'),
+(@ENTRY, 4, 62, @GOSSIP+3, 4, 62, 530, 7, 9955.565430, -7097.958984, 47.709911, 4.015150, 'Луносвет'),
+(@ENTRY, 5, 62, @GOSSIP+3, 5, 62, 0, 7, -8859.101563, 619.266479, 102.369331, 0.584275, 'Штормград'),
+(@ENTRY, 6, 62, @GOSSIP+3, 6, 62, 0, 7, -4837.895508, -862.867676, 510.246857, 2.942009, 'Стальгорн'),
+(@ENTRY, 7, 62, @GOSSIP+3, 7, 62, 1, 7, 9951.896484, 2280.510254, 1341.394165, 4.709749, 'Дарнас'),
+(@ENTRY, 8, 62, @GOSSIP+3, 8, 62, 530, 7, -3915.730957, -11608.072266, -138.359711, 5.497785, 'Экзодар'),
+(@ENTRY, 9, 62, @GOSSIP+3, 9, 62, 530, 7, -1871.883057, 5425.152832, -10.463885, 0.534024, 'Шаттрат'),
+(@ENTRY, 10, 62, @GOSSIP+3, 10, 62, 571, 7, 5838.537598, 612.459229, 650.025635, 2.479589, 'Даларан'),
+
+/*Скрипт для ВОСТОЧНЫХ КОРОЛЕВСТВ*/
+
+(@ENTRY, 11, 62, @GOSSIP+4, 1, 62, 530, 7, 12795.032227, -6979.291504, 18.696489 , 2.317924, 'Остров Кель`Данас'),
+(@ENTRY, 12, 62, @GOSSIP+4, 2, 62, 530, 7, 9250.672852, -6786.237305, 23.693743, 2.118983, 'Леса Вечной Песни'),
+(@ENTRY, 13, 62, @GOSSIP+4, 3, 62, 530, 7, 7589.800293, -6820.858887, 85.019020, 0.115519, 'Призрачные земли'),
+(@ENTRY, 14, 62, @GOSSIP+4, 4, 62, 0, 7, 2177.303711, -4628.356445, 73.623772, 2.664231, 'Восточные Чумные земли'),
+(@ENTRY, 15, 62, @GOSSIP+4, 5, 62, 0, 7, 1799.972046, -2240.586426, 61.927834, 2.079109, 'Западные Чумные земли'),
+(@ENTRY, 16, 62, @GOSSIP+4, 6, 62, 0, 7, 2039.989990, 276.079956, 54.825874, 3.562729, 'Тирисфальские леса'),
+(@ENTRY, 17, 62, @GOSSIP+4, 7, 62, 0, 7, 342.090332, 1242.819946, 80.997490, 2.743564, 'Серебрянный бор'),
+(@ENTRY, 18, 62, @GOSSIP+4, 8, 62, 0, 7, 227.739746, -655.403381, 115.796089, 3.730981, 'Альтеракские горы'),
+(@ENTRY, 19, 62, @GOSSIP+4, 9, 62, 0, 7, -674.362549, 43.590885, 47.352558, 5.990573, 'Предгорья Хилсбрада'),
+(@ENTRY, 20, 62, @GOSSIP+4, 10, 62, 0, 7, 255.198227, -2193.803467, 118.301514, 1.443116, 'Внутренние земли'),
+(@ENTRY, 21, 62, @GOSSIP+4, 11, 62, 0, 7, -1265.752319, -2525.852295, 21.326109, 1.645616, 'Нагорье Арати'),
+(@ENTRY, 22, 62, @GOSSIP+4, 12, 62, 0, 7, -3620.129150, -857.654480, 11.807404, 5.816079, 'Болотина'),
+(@ENTRY, 23, 62, @GOSSIP+4, 13, 62, 0, 7, -5350.782227, -2965.197998, 324.007172, 1.704522, 'Лок Модан'),
+(@ENTRY, 24, 62, @GOSSIP+4, 14, 62, 0, 7, -5649, -498, 396.669006, 1.203000, 'Дун Морог'),
+(@ENTRY, 25, 62, @GOSSIP+4, 15, 62, 0, 7, -6904.898438, -1876.528320, 256.611847, 1.531260, 'Тлеющее ущелье'),
+(@ENTRY, 26, 62, @GOSSIP+4, 16, 62, 0, 7, -6726.815430, -2700.419678, 241.667877, 4.981503, 'Бесплодные земли'),
+(@ENTRY, 27, 62, @GOSSIP+4, 17, 62, 0, 7, -8015.149902, -1207.980835, 143.292252, 4.452143, 'Пылающее степи'),
+(@ENTRY, 28, 62, @GOSSIP+4, 18, 62, 0, 7, -9267.489258, -2217.262939, 64.057968, 1.643559, 'Красногорье'),
+(@ENTRY, 29, 62, @GOSSIP+4, 19, 62, 0, 7, -9459.114258, 44.536186, 56.949764, 1.422077, 'Элвиннский лес'),
+(@ENTRY, 30, 62, @GOSSIP+4, 20, 62, 0, 7, -10849.465820, 1009.981079, 32.226078, 3.400488, 'Западный Край'),
+(@ENTRY, 31, 62, @GOSSIP+4, 21, 62, 0, 7, -10703.127930 , -1180.144531, 26.494156, 5.777103, 'Сумеречный лес'),
+(@ENTRY, 32, 62, @GOSSIP+4, 22, 62, 0, 7, -10441.086914, -1898.298218, 103.003990, 4.829123, 'Перевал Мертвого Ветра'),
+(@ENTRY, 33, 62, @GOSSIP+4, 23, 62, 0, 7, -10387.126953, -2697.778076, 21.678320, 4.571518, 'Болото Печали'),
+(@ENTRY, 34, 62, @GOSSIP+4, 24, 62, 0, 7, -11874.849609, -3204.227539, -19.474262, 3.237425, 'Выжженные земли'),
+(@ENTRY, 35, 62, @GOSSIP+4, 25, 62, 0, 7, -14311.287109, 510.502411, 8.614539, 4.912686, 'Тернистая Долина'),
+(@ENTRY, 36, 62, @GOSSIP+4, 26, 62, 0, 7, -13232.192383, 219.983566, 32.041870, 1.075225, 'Арена Гурубаши'),
+
+/*Скрипт для КАЛИМДОРА*/
+
+(@ENTRY, 37, 62, @GOSSIP+5, 1, 62, 1, 7, 10110.503906, 1557.334839, 1324.416626, 2.383629, 'Тельдрассил'),
+(@ENTRY, 38, 62, @GOSSIP+5, 2, 62, 530, 7, -1993.619995, -11475.799805, 63.965698, 5.294370, 'Остров Кровавой Дымки'),
+(@ENTRY, 39, 62, @GOSSIP+5, 3, 62, 530, 7, -4376.369629, -12469.382813, 8.707621, 2.807799, 'Остров Лазурной Дымки'),
+(@ENTRY, 40, 62, @GOSSIP+5, 4, 62, 1, 7, 7697.310059, -2231.007324, 456.652466, 5.917593, 'Лунная поляна'),
+(@ENTRY, 41, 62, @GOSSIP+5, 5, 62, 1, 7, 6863.051270, -4059.973389, 689.410339, 2.232505, ' '),
+(@ENTRY, 42, 62, @GOSSIP+5, 6, 62, 1, 7, 6963.128418, -84.538109, 17.513786, 0.073293, ' '),
+(@ENTRY, 43, 62, @GOSSIP+5, 7, 62, 1, 7, 5359.145508, -680.183838, 349.935120, 3.865197, ' '),
+(@ENTRY, 44, 62, @GOSSIP+5, 8, 62, 1, 7, 3237.036621, -4498.469238, 93.435219, 5.507455, ' '),
+(@ENTRY, 45, 62, @GOSSIP+5, 9, 62, 1, 7, 2453.136719, -1199.270020, 124.294647, 4.569686, ' '),
+(@ENTRY, 46, 62, @GOSSIP+5, 10, 62, 1, 7, 771.193054, -4593.916016, 1.095039, 1.059284, ' '),
+(@ENTRY, 47, 62, @GOSSIP+5, 11, 62, 1, 7, -991.461060, -2479.249268, 91.911949, 2.824860, ' '),
+(@ENTRY, 48, 62, @GOSSIP+5, 12, 62, 1, 7, 108.528107, -49.200039, 22.293026, 0.950899, ' '),
+(@ENTRY, 49, 62, @GOSSIP+5, 13, 62, 1, 7, -2182.449951, -402.428009, -4.471600, 6.175050, ' '),
+(@ENTRY, 50, 62, @GOSSIP+5, 14, 62, 1, 7, -771.608398, 1928.381836, 88.441444, 5.585537, ' '),
+(@ENTRY, 51, 62, @GOSSIP+5, 15, 62, 1, 7, -4275.581543, -2830.131104, 30.296021, 0.988597, ' '),
+(@ENTRY, 52, 62, @GOSSIP+5, 16, 62, 1, 7, -4621.180176, 479.810883, 35.402111, 1.634195, ' '),
+(@ENTRY, 53, 62, @GOSSIP+5, 17, 62, 1, 7, -4966.294434, -1723.059570, -61.877689, 4.112916, ' '),
+(@ENTRY, 54, 62, @GOSSIP+5, 18, 62, 1, 7, -7210.613770, 972.250793, 1.052063, 2.785593, ' '),
+(@ENTRY, 55, 62, @GOSSIP+5, 19, 62, 1, 7, -7547.389648, -1328.136353, -270.335480, 5.718267, ' '),
+(@ENTRY, 56, 62, @GOSSIP+5, 20, 62, 1, 7, -7109.189941, -3825.263672, 10.151583, 2.727466, ' '),
+
+
+/*Скрипт для ЗАПРЕДЕЛЬЯ*/
+
+(@ENTRY, 57, 62, @GOSSIP+6, 1, 62, 530, 7, 3092.493652, 3644.807373, 143.132538, 2.080558, 'Пустоверть'),
+(@ENTRY, 58, 62, @GOSSIP+6, 2, 62, 530, 7, 1490.566406, 6824.289063, 107.533592, 5.904511, 'Острогорье'),
+(@ENTRY, 59, 62, @GOSSIP+6, 3, 62, 530, 7, 283.451355, 5968.209961, 22.450214, 1.647648, 'Зангартопь'),
+(@ENTRY, 60, 62, @GOSSIP+6, 4, 62, 530, 7, -1246.580811, 7674.561523, 9.175216, 1.176800, 'Награнд'),
+(@ENTRY, 61, 62, @GOSSIP+6, 5, 62, 530, 7, -2622.420410, 5115.072754, 0.313608, 3.731386, 'Лес Тероккар'),
+(@ENTRY, 62, 62, @GOSSIP+6, 6, 62, 530, 7, -4046.803467, 1339.302490, 91.464539, 1.757017, 'Долина Призрачной Луны'),
+(@ENTRY, 63, 62, @GOSSIP+6, 7, 62, 530, 7, -273.343536, 4007.703857, 97.703171, 4.286790, 'Полуостров Адского Пламени'),
+(@ENTRY, 64, 62, @GOSSIP+6, 8, 62, 530, 7, -1996.022827, 6679.744629, 13.051312, 3.753507, 'Арена Награнда'),
+
+/*Скрипт для НОРДСКОЛА*/
+
+(@ENTRY, 65, 62, @GOSSIP+7, 1, 62, 571, 7, 3256.820557, 5278.357422, 40.765144, 0.518944, 'Пустоверть'),
+(@ENTRY, 66, 62, @GOSSIP+7, 2, 62, 571, 7, 1902.150024, -4883.910156, 171.363007, 3.115370, 'Пустоверть'),
+(@ENTRY, 67, 62, @GOSSIP+7, 3, 62, 571, 7, 5468.070801, 4485.803711, -136.309616, 5.042790, 'Пустоверть'),
+(@ENTRY, 68, 62, @GOSSIP+7, 4, 62, 571, 7, 4405.600586, -3834.680420, 205.016617, 5.148765, 'Пустоверть'),
+(@ENTRY, 69, 62, @GOSSIP+7, 5, 62, 571, 7, 5447.903320, -1857.963013, 248.222351, 1.590912, 'Пустоверть'),
+(@ENTRY, 70, 62, @GOSSIP+7, 6, 62, 571, 7, 4325.607422, 1185.920898, 142.207199, 3.225327, 'Пустоверть'),
+(@ENTRY, 71, 62, @GOSSIP+7, 7, 62, 571, 7, 5524.688965, 216.938263, 149.614548, 1.739352, 'Пустоверть'),
+(@ENTRY, 72, 62, @GOSSIP+7, 8, 62, 571, 7, 7103.109863, -226.308823, 774.101929, 1.184070, 'Пустоверть'),
+(@ENTRY, 73, 62, @GOSSIP+7, 9, 62, 571, 7, 6366.250488, 1084.063110, 324.951141, 0.704196, 'Пустоверть'),
+(@ENTRY, 74, 62, @GOSSIP+7, 10, 62, 571, 7, 4620.528809, 2850.178223, 396.310242, 0.204680, 'Пустоверть'),
+
+/*Скрипт для КЛАССИЧЕСКИХ ПОДЗЕМЕЛИЙ*/
+
+(@ENTRY, 75, 62, @GOSSIP+8, 1, 62, 389, 7, 3.810000, -14.820000, -17.840000, 4.390000, 'Огненная пропасть'),
+(@ENTRY, 76, 62, @GOSSIP+8, 2, 62, 36, 7, -23.811546, -377.330353, 60.974419, 2.675068, 'Мертвые копи'),
+(@ENTRY, 77, 62, @GOSSIP+8, 3, 62, 43, 7, -163.490005, 132.899994, -73.662140, 5.830000, 'Пещеры Стенаний'),
+(@ENTRY, 78, 62, @GOSSIP+8, 4, 62, 33, 7, -229.134995, 2109.179932, 76.889801, 1.267000, 'Крепость Темного Клыка'),
+(@ENTRY, 79, 62, @GOSSIP+8, 5, 62, 48, 7, -151.889999, 106.959999, -39.869999, 4.530000, 'Непроглядная Пучина'),
+(@ENTRY, 80, 62, @GOSSIP+8, 6, 62, 34, 7, 54.230000, 0.280000, -18.341167, 6.260000, 'Тюрьма Штормграда'),
+(@ENTRY, 81, 62, @GOSSIP+8, 7, 62, 47, 7, 1943.000000, 1544.630005, 81.997017, 1.380000, 'Лабиринты Иглошкурых'),
+(@ENTRY, 82, 62, @GOSSIP+8, 8, 62, 90, 7, -332.220001, -2.280000, -152.845886, 2.770000, 'Гномреган'),
+(@ENTRY, 83, 62, @GOSSIP+8, 9, 62, 129, 7, 2592.550049, 1107.500000, 51.290001, 4.740000, 'Курганы Иглошкурых'),
+(@ENTRY, 84, 62, @GOSSIP+8, 10, 62, 189, 7, 1688.989990, 1053.479980, 18.677490, 0.001170, 'Монастырь Алого ордена'),
+(@ENTRY, 85, 62, @GOSSIP+8, 11, 62, 70, 7, -226.800003, 49.090000, -46.030472, 1.390000, 'Ульдаман'),
+(@ENTRY, 86, 62, @GOSSIP+8, 12, 62, 209, 7, 1213.520020, 841.590027, 8.928117, 6.090000, 'Зул`Фаррак'),
+(@ENTRY, 87, 62, @GOSSIP+8, 13, 62, 349, 7, 752.909973, -616.530029, -33.110001, 1.370000, 'Мародон'),
+(@ENTRY, 88, 62, @GOSSIP+8, 14, 62, 109, 7, -319.239990, 99.900002, -131.850006, 3.190000, 'Затонувший храм'),
+(@ENTRY, 89, 62, @GOSSIP+8, 15, 62, 230, 7, 458.320007, 26.520000, -70.673378, 4.950000, 'Глубины Черной горы'),
+(@ENTRY, 90, 62, @GOSSIP+8, 16, 62, 229, 7, 78.508301, -225.044006, 49.839001, 5.100000, 'Нижняя часть Черной горы'),
+(@ENTRY, 91, 62, @GOSSIP+8, 17, 62, 229, 7, 78.508301, -225.044006, 49.839001, 5.100000, 'Верхняя часть Черной горы'),
+(@ENTRY, 92, 62, @GOSSIP+8, 18, 62, 429, 7, -62.965801, 159.867004, -3.464692, 3.147880, 'Забытый город'),
+(@ENTRY, 93, 62, @GOSSIP+8, 19, 62, 289, 7, 196.369995, 127.050003, 134.910004, 6.090000, 'Некроситет'),
+(@ENTRY, 94, 62, @GOSSIP+8, 20, 62, 329, 7, 3395.090088, -3380.250000, 142.701996, 0.100000, 'Стратхольм'),
+(@ENTRY, 95, 62, @GOSSIP+8, 21, 62, 309, 7, -11916.099609 , -1230.530029, 92.533401, 4.718670, 'Зуг`Гуруб'),
+
+/*Скрипт для КЛАССИЧЕСКИХ РЕЙДОВ*/
+
+(@ENTRY, 96, 62, @GOSSIP+9, 1, 62, 509, 7, -8429.740234, 1512.140015, 31.907400, 2.580000, 'Руины Ан`Киража'),
+(@ENTRY, 97, 62, @GOSSIP+9, 2, 62, 531, 7, -8231.330078, 2010.599976, 129.330612, 0.000000, 'Храм Ан`Киража'),
+(@ENTRY, 98, 62, @GOSSIP+9, 3, 62, 409, 7, 1096.000000, -467.000000, -104.599998, 3.640000, 'Огненные Недра'),
+(@ENTRY, 99, 62, @GOSSIP+9, 4, 62, 469, 7, -7673.029785, -1106.079956, 396.651001, 0.703353, 'Логово Крыла Тьмы');
+
+/*Скрипт для Помощи персонажу*/ 
+
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_param1`, `event_param2`, `action_type`, `action_param1`, `action_param2`, `target_type`, `COMMENT`)
+VALUES
+(@ENTRY, 100, 62, @GOSSIP+14, 1, 11, 25840, 1, 7, 'Исцели меня!'), 
+(@ENTRY, 101, 62, @GOSSIP+14, 2, 28, 26013, 1, 7, 'Дезертир БГ'),
+(@ENTRY, 102, 62, @GOSSIP+14, 3, 28, 71041, 1, 7, 'Дезертир инста'),
+(@ENTRY, 103, 62, @GOSSIP+14, 4, 28, 15007, 1, 7, 'Слабость'),
+
+/*Скрипт на бафы*/
+
+(@ENTRY, 104, 62, @GOSSIP+15, 1, 11, 25898, 1, 7, 'Великое благословение королей'),
+(@ENTRY, 105, 62, @GOSSIP+15, 2, 11, 48934, 1, 7, 'Великое благословение могущества'),
+(@ENTRY, 106, 62, @GOSSIP+15, 3, 11, 48938, 1, 7, 'Великое благословение мудрости'),
+(@ENTRY, 107, 62, @GOSSIP+15, 4, 11, 48161, 1, 7, 'Слово cилы: Стойкость'),
+(@ENTRY, 108, 62, @GOSSIP+15, 5, 11, 48073, 1, 7, 'Божественный дух'),
+(@ENTRY, 109, 62, @GOSSIP+15, 6, 11, 48169, 1, 7, 'Слово cилы: Стойкость'),
+(@ENTRY, 110, 62, @GOSSIP+15, 7, 11, 61024, 1, 7, 'Даларанский интеллект'),
+(@ENTRY, 111, 62, @GOSSIP+15, 8, 11, 53307, 1, 7, 'Шипы'),
+(@ENTRY, 112, 62, @GOSSIP+15, 9, 11, 48469, 1, 7, 'Знак дикой природы'),
+(@ENTRY, 113, 56, @GOSSIP+15, 10, 11, 49623, 1, 7, 'test');
+
+/*Фильтр по фракции персонажа*/
+
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ConditionTypeOrReference`, `ConditionValue1`, `COMMENT`) 
+VALUES
+(15, @GOSSIP+3, 1, 6, 67, 'Оргриммар'),
+(15, @GOSSIP+3, 2, 6, 67, 'Подгород'),
+(15, @GOSSIP+3, 3, 6, 67, 'Громовой Утёс'),
+(15, @GOSSIP+3, 4, 6, 67, 'Луносвет'),
+(15, @GOSSIP+3, 5, 6, 469, 'Штормград'),
+(15, @GOSSIP+3, 6, 6, 469, 'Стальгорн'),
+(15, @GOSSIP+3, 7, 6, 469, 'Дарнас'),
+(15, @GOSSIP+3, 8, 6, 469, 'Экзодар');
